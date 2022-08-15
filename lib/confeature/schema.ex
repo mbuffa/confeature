@@ -12,18 +12,9 @@ defmodule Confeature.Schema do
     timestamps()
   end
 
-  def changeset(%__MODULE__{} = feature, params \\ %{}) do
+  def changeset(feature = %__MODULE__{}, params \\ %{}) do
     feature
     |> cast(params, [:name, :attrs])
-    |> unique_constraint([:name])
-  end
-
-  def changeset_from_struct(feature_struct) do
-    %__MODULE__{
-      name: feature_struct.__struct__,
-      attrs: Map.from_struct(feature_struct)
-    }
-    |> cast(%{}, [])
     |> unique_constraint([:name])
   end
 end
