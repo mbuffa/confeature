@@ -11,7 +11,11 @@ defmodule Confeature.Type do
     {:ok, module} = cast(name)
     attrs =
       attrs
-      |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
+      |> Enum.map(fn
+        {k, v} when is_binary(k) -> {String.to_atom(k), v}
+        # TODO: Check if we can get rid of this clause (bug introduced with Redis cache)
+        {k, v} when is_atom(k) -> {k, v}
+      end)
       |> Enum.into(%{})
 
     {:ok, struct!(module, attrs)}

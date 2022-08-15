@@ -2,6 +2,11 @@ defmodule ConfeatureTest do
   use ExUnit.Case
   doctest Confeature
 
+  setup_all do
+    {:ok, ["OK"]} = Redix.pipeline(Test.Redix, [["FLUSHDB"]])
+    :ok
+  end
+
   setup do
     # TODO: Factor this in a case template.
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Test.Repo)
@@ -10,28 +15,57 @@ defmodule ConfeatureTest do
     :ok
   end
 
-  test "boolean toggle" do
-    Test.Confeature.set!(%Test.Features.Hello{enabled: false})
+  describe "with dummy cache" do
+    test "boolean toggle" do
+      Test.Confeature.set!(%Test.Features.Hello{enabled: false})
 
-    refute Test.Confeature.enabled?(Test.Features.Hello)
-    Test.Confeature.enable!(Test.Features.Hello)
-    assert Test.Confeature.enabled?(Test.Features.Hello)
+      refute Test.Confeature.enabled?(Test.Features.Hello)
+      Test.Confeature.enable!(Test.Features.Hello)
+      assert Test.Confeature.enabled?(Test.Features.Hello)
+    end
+
+    test "value setting" do
+      Test.Confeature.set!(%Test.Features.World{margin: 0.97})
+
+      assert Test.Confeature.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
+    end
+
+    test "multiple values" do
+      Test.Confeature.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+
+      Test.Confeature.disable!(Test.Features.Multi)
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: false, margin: 0.25}
+
+      Test.Confeature.enable!(Test.Features.Multi)
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+    end
   end
 
-  test "value setting" do
-    Test.Confeature.set!(%Test.Features.World{margin: 0.97})
+  describe "with redis-backed cache" do
+    test "boolean toggle" do
+      Test.Confeature.RedisBacked.set!(%Test.Features.Hello{enabled: false})
 
-    assert Test.Confeature.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
-  end
+      refute Test.Confeature.RedisBacked.enabled?(Test.Features.Hello)
+      Test.Cache.Redis.get(Test.Features.Hello)
+      Test.Confeature.RedisBacked.enable!(Test.Features.Hello)
+      assert Test.Confeature.RedisBacked.enabled?(Test.Features.Hello)
+    end
 
-  test "multiple values" do
-    Test.Confeature.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
-    assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+    test "value setting" do
+      Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
+    end
 
-    Test.Confeature.disable!(Test.Features.Multi)
-    assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: false, margin: 0.25}
+    test "multiple values" do
+      Test.Confeature.RedisBacked.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
+      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
 
-    Test.Confeature.enable!(Test.Features.Multi)
-    assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+      Test.Confeature.RedisBacked.disable!(Test.Features.Multi)
+      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: false, margin: 0.25}
+
+      Test.Confeature.RedisBacked.enable!(Test.Features.Multi)
+      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+    end
   end
 end

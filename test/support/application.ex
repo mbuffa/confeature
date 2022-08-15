@@ -8,7 +8,12 @@ defmodule Test.Application do
 
   def children do
     [
-      {Test.Repo, name: Test.Repo}
+      {Test.Repo, name: Test.Repo},
+      {Redix, [
+        name: Test.Redix,
+        host: "localhost",
+        port: 6379
+      ]}
     ]
   end
 end

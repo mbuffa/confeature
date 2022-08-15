@@ -12,3 +12,5 @@ config :confeature, Test.Repo,
 config :confeature, ecto_repos: [
     Test.Repo
   ]
+
+config :logger, level: :info

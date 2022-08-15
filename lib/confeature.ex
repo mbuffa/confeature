@@ -22,7 +22,11 @@ defmodule Confeature do
 
           nil ->
             query = where(Schema, [f], f.name == ^name)
-            apply(__repo__(), :one, [query])
+            result = apply(__repo__(), :one, [query])
+            unless is_nil(result) do
+              {:ok, _result} = apply(__cache__(), :set, [name, result])
+            end
+            result
         end
       end
 
@@ -36,6 +40,8 @@ defmodule Confeature do
         feature
       end
 
+      # TODO: Check why insert_or_update doesn't detect the right action to make with Redis cache.
+      # Also, it's probably rewritting `inserted_at` timestamp at each update.
       def set!(%{__struct__: name} = feature_struct) do
         attrs =
           feature_struct
@@ -50,8 +56,9 @@ defmodule Confeature do
             Schema.changeset(%Schema{name: name}, %{attrs: attrs})
         end
 
-        {:ok, result} = apply(__repo__(), :insert_or_update, [changeset])
-        {:ok, result} = apply(__cache__(), :set, [name, result])
+        {:ok, result} = apply(__repo__(), :insert_or_update, [changeset, [on_conflict: :replace_all, conflict_target: :name]])
+        {:ok, _result} = apply(__cache__(), :set, [name, result])
+        {:ok, result}
       end
 
       def enabled?(name) do

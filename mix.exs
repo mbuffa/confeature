@@ -32,7 +32,8 @@ defmodule Confeature.MixProject do
       {:ecto, "~> 3.8"},
       {:ecto_sql, "~> 3.8"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.3", only: :test}
+      {:jason, "~> 1.3", only: :test},
+      {:redix, "~> 1.1", only: :test}
     ]
   end
 
