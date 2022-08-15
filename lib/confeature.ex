@@ -2,8 +2,10 @@ defmodule Confeature do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
       @repo Keyword.fetch!(opts, :ecto_repo)
+      @cache Keyword.fetch!(opts, :cache)
 
       def __repo__, do: @repo
+      def __cache__, do: @cache
 
       import Ecto.{
         Changeset, Query
@@ -14,8 +16,14 @@ defmodule Confeature do
       }
 
       defp get_record(name) when is_atom(name) do
-        query = where(Schema, [f], f.name == ^name)
-        apply(__repo__(), :one, [query])
+        case apply(__cache__(), :get, [name]) do
+          %Schema{} = feature ->
+            feature
+
+          nil ->
+            query = where(Schema, [f], f.name == ^name)
+            apply(__repo__(), :one, [query])
+        end
       end
 
 
@@ -34,15 +42,16 @@ defmodule Confeature do
           |> Map.from_struct()
           # |> Map.drop([:name]) # FIXME: Assert reserved keyword
 
-        case get_record(name) do
+        changeset = case get_record(name) do
           %Schema{} = feature ->
-            changeset = Schema.changeset(feature, %{attrs: attrs})
-            {:ok, _result} = apply(__repo__(), :update, [changeset])
+            Schema.changeset(feature, %{attrs: attrs})
 
           nil ->
-            changeset = Schema.changeset(%Schema{name: name}, %{attrs: attrs})
-            {:ok, _result} = apply(__repo__(), :insert, [changeset])
+            Schema.changeset(%Schema{name: name}, %{attrs: attrs})
         end
+
+        {:ok, result} = apply(__repo__(), :insert_or_update, [changeset])
+        {:ok, result} = apply(__cache__(), :set, [name, result])
       end
 
       def enabled?(name) do
