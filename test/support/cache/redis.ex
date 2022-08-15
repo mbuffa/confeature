@@ -1,15 +1,25 @@
 defmodule Test.Cache.Redis do
+  @behaviour Confeature.Cache
+
   @ttl 600 # In seconds
 
   def get(name) do
     {:ok, [result]} = Redix.pipeline(Test.Redix, [["GET", name]])
+
     result |> deserialize()
   end
 
   def set(name, data) do
     data = serialize(data)
-    {:ok, ["OK"]} = Redix.pipeline(Test.Redix, [["SET", name, data, "EX", @ttl]])
-    {:ok, data}
+
+    case Redix.pipeline(Test.Redix, [["SET", name, data, "EX", @ttl]]) do
+      {:ok, ["OK"]} ->
+        {:ok, data}
+
+      reason ->
+        {:error, reason}
+    end
+
   end
 
   defp serialize(nil), do: nil
@@ -19,6 +29,7 @@ defmodule Test.Cache.Redis do
       |> Map.from_struct()
       |> Map.drop([:__meta__])
       |> Jason.encode()
+
     serialized
   end
 
