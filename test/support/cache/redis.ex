@@ -3,12 +3,14 @@ defmodule Test.Cache.Redis do
 
   @ttl 600 # In seconds
 
+  @impl true
   def get(name) do
     {:ok, [result]} = Redix.pipeline(Test.Redix, [["GET", name]])
 
     result |> deserialize()
   end
 
+  @impl true
   def set(name, data) do
     data = serialize(data)
 
@@ -20,6 +22,11 @@ defmodule Test.Cache.Redis do
         {:error, reason}
     end
 
+  end
+
+  @impl true
+  def delete(name) do
+    {:ok, [_result]} = Redix.pipeline(Test.Redix, [["DEL", name]])
   end
 
   defp serialize(nil), do: nil

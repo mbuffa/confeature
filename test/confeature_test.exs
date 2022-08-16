@@ -67,5 +67,13 @@ defmodule ConfeatureTest do
       Test.Confeature.RedisBacked.enable!(Test.Features.Multi)
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
     end
+
+    test "cache deletion" do
+      Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
+      Test.Confeature.RedisBacked.delete!(Test.Features.World)
+      assert Test.Cache.Redis.get(Test.Features.World) |> is_nil()
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) |> is_nil()
+    end
   end
 end

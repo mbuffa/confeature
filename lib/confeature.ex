@@ -80,6 +80,15 @@ defmodule Confeature do
         |> Map.put(:enabled, false)
         |> set!()
       end
+
+      def delete!(name) do
+        feature =
+          name
+          |> get_record()
+
+        {:ok, _result} = apply(__repo__(), :delete, [feature])
+        {:ok, _result} = apply(__cache__(), :delete, [name])
+      end
     end
   end
 end

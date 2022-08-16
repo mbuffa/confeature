@@ -8,7 +8,8 @@ defmodule Confeature.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      package: package()
     ]
   end
 
@@ -29,8 +30,8 @@ defmodule Confeature.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, "~> 3.8"},
-      {:ecto_sql, "~> 3.8"},
+      {:ecto, ">= 3.5.0"},
+      {:ecto_sql, ">= 3.7.0"},
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.3", only: :test},
       {:redix, "~> 1.1", only: :test}
@@ -39,4 +40,13 @@ defmodule Confeature.MixProject do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp package do
+    [
+      files: ["lib", "mix.exs", "README", "LICENSE*"],
+      maintainers: ["Maxime Buffa"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/mbuffa/confeature"}
+    ]
+  end
 end

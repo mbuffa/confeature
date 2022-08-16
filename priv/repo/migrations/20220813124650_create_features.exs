@@ -1,15 +1,16 @@
 defmodule Test.Repo.Migrations.CreateFeatures do
   use Ecto.Migration
 
-  def change do
+  def up do
     assert_test_env!()
 
-    create table(:features, primary_key: false) do
-      add :name, :string, primary_key: true, null: false
-      add :attrs, :json, default: "{}"
+    Confeature.Migrations.up()
+  end
 
-      timestamps()
-    end
+  def down do
+    assert_test_env!()
+
+    Confeature.Migrations.down()
   end
 
   defp assert_test_env!() do
