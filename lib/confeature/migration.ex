@@ -8,8 +8,8 @@ defmodule Confeature.Migration do
   ## Ecto Prefixes and SQL Schemas
 
   Confeature has been tested with Ecto multi-tenancy and should work in all
-  scenarios, since it just send basic Ecto queries that should be decorated by
-  your Ecto repository default configuration.
+  scenarios, since it just sends basic Ecto queries that should be decorated
+  by your Ecto repository default configuration.
 
   If migrations fail, your Repo probably lacks the following callback:
 
@@ -32,8 +32,8 @@ defmodule Confeature.Migration do
     table_name = Keyword.get(opts, :table_name, "features")
 
     create table(table_name, primary_key: false) do
-      add :name, :string, primary_key: true, null: false
-      add :attrs, :json, default: "{}"
+      add(:name, :string, primary_key: true, null: false)
+      add(:attrs, :json, default: "{}")
 
       timestamps()
     end
@@ -47,6 +47,6 @@ defmodule Confeature.Migration do
   def down(opts \\ []) do
     table_name = Keyword.get(opts, :table_name, "features")
 
-    drop table(table_name)
+    drop(table(table_name))
   end
 end

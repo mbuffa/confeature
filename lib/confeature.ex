@@ -51,11 +51,13 @@ defmodule Confeature do
       def __cache__, do: @cache
 
       import Ecto.{
-        Changeset, Query
+        Changeset,
+        Query
       }
 
       alias Confeature.{
-        Schema, Type
+        Schema,
+        Type
       }
 
       defp get_record(name) when is_atom(name) do
@@ -66,20 +68,21 @@ defmodule Confeature do
           nil ->
             query = where(Schema, [f], f.name == ^name)
             result = apply(__repo__(), :one, [query])
+
             unless is_nil(result) do
               {:ok, _result} = apply(__cache__(), :set, [name, result])
             end
+
             result
         end
       end
-
-
 
       def get(name) when is_atom(name) do
         {:ok, feature} =
           name
           |> get_record()
           |> Type.load()
+
         feature
       end
 
@@ -87,17 +90,24 @@ defmodule Confeature do
         attrs =
           feature_struct
           |> Map.from_struct()
-          # |> Map.drop([:name]) # FIXME: Reject reserved keyword
 
-        changeset = case get_record(name) do
-          %Schema{} = feature ->
-            Schema.changeset(feature, %{attrs: attrs})
+        # |> Map.drop([:name]) # FIXME: Reject reserved keyword
 
-          nil ->
-            Schema.changeset(%Schema{name: name}, %{attrs: attrs})
-        end
+        changeset =
+          case get_record(name) do
+            %Schema{} = feature ->
+              Schema.changeset(feature, %{attrs: attrs})
 
-        {:ok, result} = apply(__repo__(), :insert_or_update, [changeset, [on_conflict: :replace_all, conflict_target: :name]])
+            nil ->
+              Schema.changeset(%Schema{name: name}, %{attrs: attrs})
+          end
+
+        {:ok, result} =
+          apply(__repo__(), :insert_or_update, [
+            changeset,
+            [on_conflict: :replace_all, conflict_target: :name]
+          ])
+
         {:ok, _result} = apply(__cache__(), :set, [name, result])
         {:ok, result}
       end
@@ -133,8 +143,6 @@ defmodule Confeature do
     end
   end
 
-
-
   @doc """
   Returns a feature struct based on the module name.
 
@@ -147,8 +155,6 @@ defmodule Confeature do
   """
   @callback get(name :: atom()) :: struct() | nil
 
-
-
   @doc """
   Writes new settings using a feature struct. It'll write to the database
   and invalidate cache right after.
@@ -160,8 +166,6 @@ defmodule Confeature do
       => {:ok, *your_updated_struct*}
   """
   @callback set!(struct :: struct()) :: {:ok, struct()}
-
-
 
   @doc """
   Returns true if your feature is enabled. This is a helper function, and
@@ -176,8 +180,6 @@ defmodule Confeature do
   """
   @callback enabled?(name :: atom()) :: boolean()
 
-
-
   @doc """
   Enables a feature. This is a helper function, and it requires you to
   declare the enabled boolean field on the feature struct.
@@ -190,8 +192,6 @@ defmodule Confeature do
   """
   @callback enable!(name :: atom()) :: {:ok, struct()}
 
-
-
   @doc """
   Disables a feature. This is a helper function, and it requires you to
   declare the enabled boolean field on the feature struct.
@@ -203,8 +203,6 @@ defmodule Confeature do
       => {:ok, *your_updated_struct*}
   """
   @callback disable!(name :: atom()) :: {:ok, struct()}
-
-
 
   @doc """
   Deletes the feature row from your database and invalidates the cache.

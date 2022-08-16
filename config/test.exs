@@ -9,7 +9,8 @@ config :confeature, Test.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   show_sensitive_data_on_connection_error: true
 
-config :confeature, ecto_repos: [
+config :confeature,
+  ecto_repos: [
     Test.Repo
   ]
 

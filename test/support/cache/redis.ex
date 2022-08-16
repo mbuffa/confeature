@@ -1,7 +1,8 @@
 defmodule Test.Cache.Redis do
   @behaviour Confeature.Cache
 
-  @ttl 600 # In seconds
+  # In seconds
+  @ttl 600
 
   @impl true
   def get(name) do
@@ -21,7 +22,6 @@ defmodule Test.Cache.Redis do
       reason ->
         {:error, reason}
     end
-
   end
 
   @impl true
@@ -30,6 +30,7 @@ defmodule Test.Cache.Redis do
   end
 
   defp serialize(nil), do: nil
+
   defp serialize(data) do
     {:ok, serialized} =
       data
@@ -41,13 +42,15 @@ defmodule Test.Cache.Redis do
   end
 
   defp deserialize(nil), do: nil
+
   defp deserialize(data) do
-    {:ok, %{
-      name: name,
-      attrs: attrs,
-      inserted_at: inserted_at,
-      updated_at: updated_at
-    }} =
+    {:ok,
+     %{
+       name: name,
+       attrs: attrs,
+       inserted_at: inserted_at,
+       updated_at: updated_at
+     }} =
       data
       |> Jason.decode(keys: :atoms)
 

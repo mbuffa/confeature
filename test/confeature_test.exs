@@ -32,13 +32,25 @@ defmodule ConfeatureTest do
 
     test "multiple values" do
       Test.Confeature.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
-      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: true,
+               margin: 0.25
+             }
 
       Test.Confeature.disable!(Test.Features.Multi)
-      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: false, margin: 0.25}
+
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: false,
+               margin: 0.25
+             }
 
       Test.Confeature.enable!(Test.Features.Multi)
-      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: true,
+               margin: 0.25
+             }
     end
   end
 
@@ -54,23 +66,42 @@ defmodule ConfeatureTest do
 
     test "value setting" do
       Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
-      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
+
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{
+               margin: 0.97
+             }
     end
 
     test "multiple values" do
       Test.Confeature.RedisBacked.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
-      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+
+      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: true,
+               margin: 0.25
+             }
 
       Test.Confeature.RedisBacked.disable!(Test.Features.Multi)
-      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: false, margin: 0.25}
+
+      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: false,
+               margin: 0.25
+             }
 
       Test.Confeature.RedisBacked.enable!(Test.Features.Multi)
-      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{enabled: true, margin: 0.25}
+
+      assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: true,
+               margin: 0.25
+             }
     end
 
     test "cache deletion" do
       Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
-      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
+
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{
+               margin: 0.97
+             }
+
       Test.Confeature.RedisBacked.delete!(Test.Features.World)
       assert Test.Cache.Redis.get(Test.Features.World) |> is_nil()
       assert Test.Confeature.RedisBacked.get(Test.Features.World) |> is_nil()

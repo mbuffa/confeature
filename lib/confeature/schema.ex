@@ -10,8 +10,8 @@ defmodule Confeature.Schema do
   @primary_key false
 
   schema "features" do
-    field :name, CustomType, primary_key: true
-    field :attrs, :map
+    field(:name, CustomType, primary_key: true)
+    field(:attrs, :map)
     timestamps()
   end
 

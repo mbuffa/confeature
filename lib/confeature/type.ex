@@ -8,11 +8,14 @@ defmodule Confeature.Type do
   def type, do: :string
 
   def cast(string) when is_binary(string), do: {:ok, String.to_existing_atom(string)}
+
   def cast(atom) when is_atom(atom) do
-    {:ok ,atom}
+    {:ok, atom}
   end
+
   def cast(%{name: name, attrs: attrs}) do
     {:ok, module} = cast(name)
+
     attrs =
       attrs
       |> Enum.map(fn

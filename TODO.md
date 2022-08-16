@@ -11,3 +11,4 @@
 * [ ] Add :telemetry events
 * [ ] Make test fixtures more insightful
 * [ ] Write CI
+* [x] Mix Format
