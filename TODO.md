@@ -10,3 +10,4 @@
 * [ ] Write a proper README
 * [ ] Add :telemetry events
 * [ ] Make test fixtures more insightful
+* [ ] Write CI
