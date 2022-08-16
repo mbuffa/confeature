@@ -4,5 +4,5 @@
   * [x] Add sample Redis cache
   * [ ] Add ETS/ConCache cache
 * [ ] Refactor assertions to make them more insightful
-* [ ] Add License file
+* [x] Add License file
 * [ ] Add a Mix Task for creating local Confeature PG migration
