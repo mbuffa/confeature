@@ -1,4 +1,8 @@
 defmodule Confeature.Type do
+  @moduledoc """
+  Defines an internal custom Ecto.Type that lets Ecto cast a Feature module
+  into a valid SQL fragment, and vice-versa.
+  """
   use Ecto.Type
 
   def type, do: :string

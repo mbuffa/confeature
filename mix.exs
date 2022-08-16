@@ -9,7 +9,13 @@ defmodule Confeature.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      package: package()
+      package: package(),
+      name: "Confeature",
+      source_url: "https://github.com/mbuffa/confeature",
+      docs: [
+        main: "Confeature",
+        extras: ["README.md"]
+      ]
     ]
   end
 
@@ -34,7 +40,8 @@ defmodule Confeature.MixProject do
       {:ecto_sql, ">= 3.7.0"},
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.3", only: :test},
-      {:redix, "~> 1.1", only: :test}
+      {:redix, "~> 1.1", only: :test},
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
     ]
   end
 

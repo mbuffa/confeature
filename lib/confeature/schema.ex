@@ -1,4 +1,7 @@
 defmodule Confeature.Schema do
+  @moduledoc """
+  Defines an internal Ecto schema and changeset used to store Features.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

@@ -6,5 +6,7 @@
 * [ ] Refactor assertions to make them more insightful
 * [x] Add License file
 * [x] Add a Mix Task for creating local Confeature PG migration
-* [ ] Write and generate documentation
+* [x] Write and generate documentation
 * [ ] Write a proper README
+* [ ] Add :telemetry events
+* [ ] Make test fixtures more insightful
