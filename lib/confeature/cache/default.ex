@@ -1,4 +1,4 @@
-defmodule Test.Cache.Dummy do
+defmodule Confeature.Cache.Default do
   @behaviour Confeature.Cache
 
   @impl true

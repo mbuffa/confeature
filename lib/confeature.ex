@@ -11,12 +11,11 @@ defmodule Confeature do
             cache: MyApp.Cache.Feature
       end
 
-  Please refer to the `Confeature.Cache` module doc for detailed instructions
+  Providing an ecto_repo is mandatory, but by default, Confeature will use a
+  placeholder cache module. Please refer to the `Confeature.Cache` module doc for detailed instructions
   on how to implement your cache.
 
-  The two parameters of this macro are required.
-
-  The functions docs below will assume you have the following feature modules
+  The functions docs below assume that you have the following feature modules
   declared, as references:
 
       defmodule MyApp.Features.UsageAlert do
@@ -45,7 +44,7 @@ defmodule Confeature do
       @behaviour Confeature
 
       @repo Keyword.fetch!(opts, :ecto_repo)
-      @cache Keyword.fetch!(opts, :cache)
+      @cache Keyword.get(opts, :cache, Confeature.Cache.Default)
 
       def __repo__, do: @repo
       def __cache__, do: @cache
