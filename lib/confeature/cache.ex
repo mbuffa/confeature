@@ -20,7 +20,7 @@ defmodule Confeature.Cache do
         end
 
         @impl true
-        def delete(_name), do: nil
+        def delete(name), do: {:ok, name}
       end
 
   And here's an example of a cache implemented using ConCache (on top of ETS):
@@ -65,5 +65,5 @@ defmodule Confeature.Cache do
   @callback set(name :: any, data :: map) ::
               {:ok, result :: term} | {:error, reason :: term}
 
-  @callback delete(name :: any) :: any
+  @callback delete(name :: term) :: {:ok, name :: term()}
 end

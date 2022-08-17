@@ -8,11 +8,37 @@ defmodule ConfeatureTest do
   end
 
   setup do
-    # TODO: Factor this in a case template.
+    # TODO: Factorize this in a case template.
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Test.Repo)
     Ecto.Adapters.SQL.Sandbox.mode(Test.Repo, {:shared, self()})
 
     :ok
+  end
+
+  describe "SQL functions" do
+    test "upsert/1" do
+      {:ok, record = %Confeature.Schema{
+        attrs: %{enabled: false},
+        name: Test.Features.Hello,
+      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
+
+      {:ok, feature} = Confeature.Type.load(record)
+
+      {:ok, %Confeature.Schema{
+        attrs: %{enabled: true},
+        name: Test.Features.Hello,
+      }} = Test.Confeature.SQL.upsert(%{feature | enabled: true})
+
+      Test.Confeature.delete!(Test.Features.Hello)
+    end
+
+    test "get/1" do
+      assert Test.Confeature.SQL.get(Test.Features.Hello) |> is_nil()
+
+      {:ok, _} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
+
+      %Test.Features.Hello{enabled: false} = Test.Confeature.get(Test.Features.Hello)
+    end
   end
 
   describe "with dummy cache" do

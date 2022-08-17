@@ -10,5 +10,5 @@ defmodule Test.Cache.Dummy do
   end
 
   @impl true
-  def delete(_name), do: nil
+  def delete(name), do: {:ok, name}
 end
