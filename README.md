@@ -1,6 +1,6 @@
 # Confeature
 
-`Confeature` is generic and simple library to handle your application-wide feature settings, storing them with Ecto and providing a cache interface.
+`Confeature` is a generic and simple Elixir library to handle your application-wide feature settings, storing them with Ecto and providing a cache interface.
 
 Please note that this is a very early development, and that `Confeature` hasn't been tested a lot in production yet.
 
@@ -10,6 +10,10 @@ The scope of `Confeature` is primarily set on:
 * Allowing you to change your application settings dynamically,
 * Setting any value at runtime,
 * Type-checking updates with structs and specs.
+
+## Documentation
+
+Documentation is available on [https://hexdocs.pm/confeature](https://hexdocs.pm/confeature).
 
 ## Installation
 
@@ -117,7 +121,3 @@ MyApp.Confeature.enabled?(MyApp.Features.Throttling)
 MyApp.Confeature.enable!(MyApp.Features.Throttling) 
 MyApp.Confeature.disable!(MyApp.Features.Throttling) 
 ```
-
-## Documentation
-
-Documentation is available on [https://hexdocs.pm/confeature](https://hexdocs.pm/confeature).
