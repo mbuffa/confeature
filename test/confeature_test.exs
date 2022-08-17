@@ -41,37 +41,37 @@ defmodule ConfeatureTest do
     end
   end
 
-  describe "with dummy cache" do
-    test "boolean toggle" do
-      Test.Confeature.set!(%Test.Features.Hello{enabled: false})
+  describe "behavior, without cache" do
+    test "toggling a boolean" do
+      {:ok, %Test.Features.Hello{enabled: false}} = Test.Confeature.set!(%Test.Features.Hello{enabled: false})
 
       refute Test.Confeature.enabled?(Test.Features.Hello)
-      Test.Confeature.enable!(Test.Features.Hello)
+      {:ok, %Test.Features.Hello{enabled: true}} = Test.Confeature.enable!(Test.Features.Hello)
       assert Test.Confeature.enabled?(Test.Features.Hello)
     end
 
-    test "value setting" do
-      Test.Confeature.set!(%Test.Features.World{margin: 0.97})
+    test "setting a value" do
+      {:ok, %Test.Features.World{margin: 0.97}} = Test.Confeature.set!(%Test.Features.World{margin: 0.97})
 
       assert Test.Confeature.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
     end
 
-    test "multiple values" do
-      Test.Confeature.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
+    test "setting multiple values" do
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
 
       assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
                margin: 0.25
              }
 
-      Test.Confeature.disable!(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: false, margin: 0.25}} = Test.Confeature.disable!(Test.Features.Multi)
 
       assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: false,
                margin: 0.25
              }
 
-      Test.Confeature.enable!(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.enable!(Test.Features.Multi)
 
       assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
@@ -80,40 +80,37 @@ defmodule ConfeatureTest do
     end
   end
 
-  describe "with redis-backed cache" do
-    test "boolean toggle" do
-      Test.Confeature.RedisBacked.set!(%Test.Features.Hello{enabled: false})
+  describe "behavior, with redis-backed cache" do
+    test "toggling a boolean" do
+      {:ok, %Test.Features.Hello{enabled: false}} = Test.Confeature.RedisBacked.set!(%Test.Features.Hello{enabled: false})
 
       refute Test.Confeature.RedisBacked.enabled?(Test.Features.Hello)
-      Test.Cache.Redis.get(Test.Features.Hello)
-      Test.Confeature.RedisBacked.enable!(Test.Features.Hello)
+      {:ok, %Test.Features.Hello{enabled: true}} = Test.Confeature.RedisBacked.enable!(Test.Features.Hello)
       assert Test.Confeature.RedisBacked.enabled?(Test.Features.Hello)
     end
 
-    test "value setting" do
-      Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
+    test "setting a value" do
+      {:ok, %Test.Features.World{margin: 0.97}} = Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
 
-      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{
-               margin: 0.97
-             }
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
     end
 
-    test "multiple values" do
-      Test.Confeature.RedisBacked.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
+    test "setting multiple values" do
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.RedisBacked.set!(%Test.Features.Multi{enabled: true, margin: 0.25})
 
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
                margin: 0.25
              }
 
-      Test.Confeature.RedisBacked.disable!(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: false, margin: 0.25}} = Test.Confeature.RedisBacked.disable!(Test.Features.Multi)
 
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: false,
                margin: 0.25
              }
 
-      Test.Confeature.RedisBacked.enable!(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.RedisBacked.enable!(Test.Features.Multi)
 
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
@@ -121,7 +118,7 @@ defmodule ConfeatureTest do
              }
     end
 
-    test "cache deletion" do
+    test "deletion" do
       Test.Confeature.RedisBacked.set!(%Test.Features.World{margin: 0.97})
 
       assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{
@@ -131,6 +128,7 @@ defmodule ConfeatureTest do
       Test.Confeature.RedisBacked.delete!(Test.Features.World)
       assert Test.Cache.Redis.get(Test.Features.World) |> is_nil()
       assert Test.Confeature.RedisBacked.get(Test.Features.World) |> is_nil()
+      assert Test.Confeature.RedisBacked.SQL.get(Test.Features.World) |> is_nil()
     end
   end
 end
