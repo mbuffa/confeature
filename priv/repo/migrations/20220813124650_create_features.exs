@@ -1,19 +1,21 @@
-defmodule Test.Repo.Migrations.CreateFeatures do
+defmodule Test.Repo.Migration.CreateFeatures do
   use Ecto.Migration
 
   def up do
     assert_test_env!()
 
-    Confeature.Migrations.up()
+    Confeature.Migration.up()
+    Confeature.Migration.up(table_name: "my_features")
   end
 
   def down do
     assert_test_env!()
 
-    Confeature.Migrations.down()
+    Confeature.Migration.down()
+    Confeature.Migration.down(table_name: "my_features")
   end
 
   defp assert_test_env!() do
-    if Mix.env() != :test, do: raise "Confeature migrations are made for :test env only!"
+    if Mix.env() != :test, do: raise "Confeature Migration are made for :test env only!"
   end
 end

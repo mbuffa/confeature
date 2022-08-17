@@ -45,9 +45,11 @@ defmodule Confeature do
 
       @repo Keyword.fetch!(opts, :ecto_repo)
       @cache Keyword.get(opts, :cache, Confeature.Cache.Default)
+      @table_name Keyword.get(opts, :table_name)
 
       def __repo__, do: @repo
       def __cache__, do: @cache
+      def __table_name__, do: @table_name
 
       alias Confeature.{
         Schema,
@@ -68,9 +70,30 @@ defmodule Confeature do
           apply(@parent, :__repo__, [])
         end
 
+        defp __table_name__ do
+          apply(@parent, :__table_name__, [])
+        end
+
+        defp maybe_override_query_source(query, nil), do: query
+        defp maybe_override_query_source(query, table_name) when is_binary(table_name) do
+            %Ecto.Query.FromExpr{
+              source: {"features", Schema}
+            } = from = query.from
+
+            %{query | from: %{from | source: {table_name, Schema}}}
+        end
+
+        defp maybe_override_changeset_source(changeset, nil), do: changeset
+        defp maybe_override_changeset_source(changeset, table_name) do
+          %{changeset | data: Ecto.put_meta(changeset.data, source: table_name) }
+        end
+
         @spec get(name :: atom()) :: Schema.t() | nil
         def get(name) when is_atom(name) do
-          query = where(Schema, [f], f.name == ^name)
+          query =
+            where(Schema, [f], f.name == ^name)
+            |> maybe_override_query_source(__table_name__())
+
           apply(__repo__(), :one, [query])
         end
 
@@ -89,6 +112,8 @@ defmodule Confeature do
               nil ->
                 Schema.changeset(%Schema{}, %{name: name, attrs: attrs})
             end
+
+          changeset = maybe_override_changeset_source(changeset, __table_name__())
 
           apply(__repo__(), :insert_or_update, [
             changeset,

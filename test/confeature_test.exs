@@ -131,4 +131,20 @@ defmodule ConfeatureTest do
       assert Test.Confeature.RedisBacked.SQL.get(Test.Features.World) |> is_nil()
     end
   end
+
+  describe "behavior, with another table name" do
+    test "simple assertions" do
+      # Is our table empty?
+      assert Test.Confeature.WithTableName.get(:hello) |> is_nil()
+
+      # Let's create something.
+      Test.Confeature.WithTableName.set!(%Test.Features.Hello{enabled: true})
+
+      # Let's make sure it's not in the `features` table.
+      assert Test.Confeature.get(Test.Features.Hello) |> is_nil()
+
+      # And check that it's been created in the right table.
+      %Test.Features.Hello{enabled: true} =  Test.Confeature.WithTableName.get(Test.Features.Hello)
+    end
+  end
 end

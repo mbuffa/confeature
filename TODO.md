@@ -1,5 +1,5 @@
 # TODO
-* [ ] Write a README
+* [x] Write a README
 * [ ] Write CI
 * [x] Add cache support (ConCache, Redis)
   * [x] Add behavior
@@ -12,3 +12,4 @@
 * [ ] Make test fixtures more meaningful
 * [x] Mix Format
 * [ ] Find the best way to DRY test assertions
+* [ ] Create some benchmark
