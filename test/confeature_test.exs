@@ -15,6 +15,10 @@ defmodule ConfeatureTest do
     :ok
   end
 
+  describe "Confeature.Type" do
+    # TODO
+  end
+
   describe "SQL functions" do
     test "upsert/1" do
       {:ok, record = %Confeature.Schema{
@@ -37,18 +41,24 @@ defmodule ConfeatureTest do
 
       {:ok, _} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
 
-      %Test.Features.Hello{enabled: false} = Test.Confeature.get(Test.Features.Hello)
+      %Confeature.Schema{
+        attrs: %{"enabled" => false},
+        name: Test.Features.Hello,
+      } = Test.Confeature.SQL.get(Test.Features.Hello)
     end
 
     test "enable/1" do
-      {:ok, %Confeature.Schema{
+      {:ok, record = %Confeature.Schema{
         attrs: %{enabled: false},
         name: Test.Features.Hello,
       }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
 
       Test.Confeature.SQL.enable(Test.Features.Hello)
 
-      %Test.Features.Hello{enabled: true} = Test.Confeature.get(Test.Features.Hello)
+      %Confeature.Schema{
+        attrs: %{"enabled" => true},
+        name: Test.Features.Hello,
+      } = Test.Confeature.SQL.get(Test.Features.Hello)
     end
 
     test "disable/1" do
@@ -59,7 +69,10 @@ defmodule ConfeatureTest do
 
       Test.Confeature.SQL.disable(Test.Features.Hello)
 
-      %Test.Features.Hello{enabled: false} = Test.Confeature.get(Test.Features.Hello)
+      %Confeature.Schema{
+        attrs: %{"enabled" => false},
+        name: Test.Features.Hello,
+      } = Test.Confeature.SQL.get(Test.Features.Hello)
     end
 
     test "delete/1" do
@@ -70,7 +83,7 @@ defmodule ConfeatureTest do
 
       Test.Confeature.SQL.delete(Test.Features.Hello)
 
-      assert Test.Confeature.get(Test.Features.Hello) |> is_nil()
+      assert Test.Confeature.SQL.get(Test.Features.Hello) |> is_nil()
     end
   end
 
