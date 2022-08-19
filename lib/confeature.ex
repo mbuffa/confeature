@@ -172,7 +172,7 @@ defmodule Confeature do
         end
       end
 
-      def set!(%{__struct__: name} = feature_struct) do
+      def set(%{__struct__: name} = feature_struct) do
         {:ok, result} = SQL.upsert(feature_struct)
         {:ok, _result} = apply(__cache__(), :set, [name, result])
 
@@ -192,18 +192,18 @@ defmodule Confeature do
         |> Map.fetch!(:enabled)
       end
 
-      def enable!(name) do
+      def enable(name) do
         name
         |> get()
         |> Map.put(:enabled, true)
-        |> set!()
+        |> set()
       end
 
-      def disable!(name) do
+      def disable(name) do
         name
         |> get()
         |> Map.put(:enabled, false)
-        |> set!()
+        |> set()
       end
     end
   end
@@ -227,10 +227,10 @@ defmodule Confeature do
   This function allows incremental updates; parameters you don't provide
   won't get erased.
 
-      MyApp.Confeature.set!(%MyApp.Features.HiddenPixel{x: 43, y: 219})
+      MyApp.Confeature.set(%MyApp.Features.HiddenPixel{x: 43, y: 219})
       => {:ok, *your_updated_struct*}
   """
-  @callback set!(struct :: struct()) :: {:ok, struct()}
+  @callback set(struct :: struct()) :: {:ok, struct()}
 
   @doc """
   Deletes the feature row from your database and invalidates the cache.
@@ -257,23 +257,23 @@ defmodule Confeature do
   Enables a feature. This is a helper function, and it requires you to
   declare the enabled boolean field on the feature struct.
 
-      MyApp.Confeature.enable!(MyApp.Features.UsageAlert)
+      MyApp.Confeature.enable(MyApp.Features.UsageAlert)
       => *will throw an error*
 
-      MyApp.Confeature.enable!(MyApp.Features.HiddenPixel)
+      MyApp.Confeature.enable(MyApp.Features.HiddenPixel)
       => {:ok, *your_updated_struct*}
   """
-  @callback enable!(name :: atom()) :: {:ok, struct()}
+  @callback enable(name :: atom()) :: {:ok, struct()}
 
   @doc """
   Disables a feature. This is a helper function, and it requires you to
   declare the enabled boolean field on the feature struct.
 
-      MyApp.Confeature.disable!(MyApp.Features.UsageAlert)
+      MyApp.Confeature.disable(MyApp.Features.UsageAlert)
       => *will throw an error*
 
-      MyApp.Confeature.disable!(MyApp.Features.HiddenPixel)
+      MyApp.Confeature.disable(MyApp.Features.HiddenPixel)
       => {:ok, *your_updated_struct*}
   """
-  @callback disable!(name :: atom()) :: {:ok, struct()}
+  @callback disable(name :: atom()) :: {:ok, struct()}
 end

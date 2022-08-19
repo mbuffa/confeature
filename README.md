@@ -81,7 +81,7 @@ mix ecto.gen.migration init_throttling_settings
 ```elixir
 defmodule YourMigration do
   def up do
-    MyApp.Confeature.set!(%MyApp.Features.Throttling{
+    MyApp.Confeature.set(%MyApp.Features.Throttling{
       identifier: "token",
       threshold: 500 # 500 requests
     })
@@ -99,7 +99,7 @@ You can then reference it in your code:
 iex> MyApp.Confeature.get(MyApp.Features.Throttling)
 %MyApp.Features.Throttling{identifier: "token", threshold: 500}
 
-iex> MyApp.Confeature.set!(%MyApp.Features.Throttlin{identifier: "token", threshold: 1000})
+iex> MyApp.Confeature.set(%MyApp.Features.Throttlin{identifier: "token", threshold: 1000})
 %MyApp.Features.Throttling{identifier: "token", threshold: 1000}
 ```
 
@@ -118,6 +118,6 @@ defmodule MyApp.Features.Throttling do
 end
 
 MyApp.Confeature.enabled?(MyApp.Features.Throttling) 
-MyApp.Confeature.enable!(MyApp.Features.Throttling) 
-MyApp.Confeature.disable!(MyApp.Features.Throttling) 
+MyApp.Confeature.enable(MyApp.Features.Throttling) 
+MyApp.Confeature.disable(MyApp.Features.Throttling) 
 ```
