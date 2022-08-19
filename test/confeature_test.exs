@@ -39,6 +39,39 @@ defmodule ConfeatureTest do
 
       %Test.Features.Hello{enabled: false} = Test.Confeature.get(Test.Features.Hello)
     end
+
+    test "enable!/1" do
+      {:ok, %Confeature.Schema{
+        attrs: %{enabled: false},
+        name: Test.Features.Hello,
+      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
+
+      Test.Confeature.SQL.enable(Test.Features.Hello)
+
+      %Test.Features.Hello{enabled: true} = Test.Confeature.get(Test.Features.Hello)
+    end
+
+    test "disable!/1" do
+      {:ok, %Confeature.Schema{
+        attrs: %{enabled: true},
+        name: Test.Features.Hello,
+      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: true})
+
+      Test.Confeature.SQL.disable(Test.Features.Hello)
+
+      %Test.Features.Hello{enabled: false} = Test.Confeature.get(Test.Features.Hello)
+    end
+
+    test "delete/1" do
+      {:ok, %Confeature.Schema{
+        attrs: %{enabled: true},
+        name: Test.Features.Hello,
+      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: true})
+
+      Test.Confeature.SQL.delete(Test.Features.Hello)
+
+      assert Test.Confeature.get(Test.Features.Hello) |> is_nil()
+    end
   end
 
   describe "behavior, without cache" do

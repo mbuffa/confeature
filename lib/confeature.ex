@@ -120,6 +120,36 @@ defmodule Confeature do
             [on_conflict: :replace_all, conflict_target: :name]
           ])
         end
+
+        @spec delete(name :: atom()) :: {:ok, struct()} | {:error, changeset :: term()}
+        def delete(name) do
+          %Schema{} = feature = get(name)
+          apply(__repo__(), :delete, [feature])
+        end
+
+        @spec enable(name :: atom()) :: {:ok, struct()}
+        def enable(name) when is_atom(name) do
+          case get(name) do
+            %Schema{} = record ->
+              {:ok, feature} = Type.load(record)
+              upsert(%{feature | enabled: true})
+
+            nil ->
+              {:error, :not_found}
+          end
+        end
+
+        @spec disable(name :: atom()) :: {:ok, struct()}
+        def disable(name) when is_atom(name) do
+          case get(name) do
+            %Schema{} = record ->
+              {:ok, feature} = Type.load(record)
+              upsert(%{feature | enabled: false})
+
+            nil ->
+              {:error, :not_found}
+          end
+        end
       end
 
       def get(name) when is_atom(name) do
