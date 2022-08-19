@@ -160,15 +160,14 @@ defmodule Confeature do
             feature
 
           nil ->
-            {:ok, feature} =
-              SQL.get(name)
-              |> Type.load()
+            case SQL.get(name) do
+              nil -> nil
 
-            unless is_nil(feature) do
-              {:ok, _result} = apply(__cache__(), :set, [name, feature])
+              %Confeature.Schema{} = record ->
+                {:ok, _result} = apply(__cache__(), :set, [name, record])
+                {:ok, feature} = record |> Type.load()
+                feature
             end
-
-            feature
         end
       end
 

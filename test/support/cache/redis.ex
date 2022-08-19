@@ -31,7 +31,7 @@ defmodule Test.Cache.Redis do
 
   defp serialize(nil), do: nil
 
-  defp serialize(data) do
+  defp serialize(%Confeature.Schema{} = data) do
     {:ok, serialized} =
       data
       |> Map.from_struct()
