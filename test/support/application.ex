@@ -12,9 +12,17 @@ defmodule Test.Application do
       {Redix,
        [
          name: Test.Redix,
-         host: "localhost",
+         host: redis_host(),
          port: 6379
        ]}
     ]
+  end
+
+  defp redis_host do
+    if System.get_env("CI") == "true" do
+      "redis"
+    else
+      "localhost"
+    end
   end
 end
