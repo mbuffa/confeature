@@ -5,7 +5,7 @@ defmodule Test.Repo do
 
   def init(_type, config) do
     if System.get_env("CI") == "true" do
-      url = "ecto://postgres:postgres@postgres:5432/confeature_test"
+      url = "ecto://postgres:postgres@localhost:5432/confeature_test"
       config =
         config
         |> Keyword.put(:url, url)
