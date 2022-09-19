@@ -4,6 +4,7 @@ defmodule Test.Repo do
     adapter: Ecto.Adapters.Postgres
 
   def init(_type, config) do
+    IO.inspect {:debug, config}
     if System.get_env("CI") == "true" do
       url = "ecto://postgres:postgres@postgres:5432/confeature_test"
       {:ok, Keyword.put(config, :url, url)}
