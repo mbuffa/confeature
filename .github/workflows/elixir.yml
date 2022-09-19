@@ -29,11 +29,6 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-          
-      redis:
-        image: redis
-        ports:
-          - 6379/tcp
 
     steps:
     - uses: actions/checkout@v3
@@ -52,6 +47,10 @@ jobs:
         restore-keys: ${{ runner.os }}-mix-
     - name: Install dependencies
       run: mix deps.get
+    - name: Start Redis
+      uses: supercharge/redis-github-action@1.4.0
+      with:
+        redis-version: 6
     - name: Run tests
       env:
         MIX_ENV: test
