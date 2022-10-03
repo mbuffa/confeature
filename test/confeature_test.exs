@@ -22,14 +22,14 @@ defmodule ConfeatureTest do
   describe "SQL functions" do
     test "upsert/1" do
       {:ok, record = %Confeature.Schema{
-        attrs: %{enabled: false},
+        attrs: %{"enabled" => false},
         name: Test.Features.Hello,
       }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
 
       {:ok, feature} = Confeature.Type.load(record)
 
       {:ok, %Confeature.Schema{
-        attrs: %{enabled: true},
+        attrs: %{"enabled" => true},
         name: Test.Features.Hello,
       }} = Test.Confeature.SQL.upsert(%{feature | enabled: true})
 
@@ -49,7 +49,7 @@ defmodule ConfeatureTest do
 
     test "enable/1" do
       {:ok, record = %Confeature.Schema{
-        attrs: %{enabled: false},
+        attrs: %{"enabled" => false},
         name: Test.Features.Hello,
       }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
 
@@ -63,7 +63,7 @@ defmodule ConfeatureTest do
 
     test "disable/1" do
       {:ok, %Confeature.Schema{
-        attrs: %{enabled: true},
+        attrs: %{"enabled" => true},
         name: Test.Features.Hello,
       }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: true})
 
@@ -77,7 +77,7 @@ defmodule ConfeatureTest do
 
     test "delete/1" do
       {:ok, %Confeature.Schema{
-        attrs: %{enabled: true},
+        attrs: %{"enabled" => true},
         name: Test.Features.Hello,
       }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: true})
 
@@ -92,7 +92,9 @@ defmodule ConfeatureTest do
       {:ok, %Test.Features.Hello{enabled: false}} = Test.Confeature.set(%Test.Features.Hello{enabled: false})
 
       refute Test.Confeature.enabled?(Test.Features.Hello)
+
       {:ok, %Test.Features.Hello{enabled: true}} = Test.Confeature.enable(Test.Features.Hello)
+
       assert Test.Confeature.enabled?(Test.Features.Hello)
     end
 
@@ -191,6 +193,41 @@ defmodule ConfeatureTest do
 
       # And check that it's been created in the right table.
       %Test.Features.Hello{enabled: true} =  Test.Confeature.WithTableName.get(Test.Features.Hello)
+    end
+  end
+
+  describe "behavior, partial updates" do
+    test "with synchronous calls" do
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
+
+      Test.Confeature.set(%Test.Features.Multi{margin: 1.0})
+      Test.Confeature.set(%Test.Features.Multi{enabled: false})
+
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: false,
+               margin: 1.0
+             }
+    end
+
+    test "with concurrent and multiple calls" do
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
+
+      update_fcts = [
+        fn -> Test.Confeature.set(%Test.Features.Multi{margin: 1.0}) end,
+        fn -> Test.Confeature.set(%Test.Features.Multi{enabled: false}) end
+      ]
+
+      (1..20)
+      |> Enum.each(fn _iteration ->
+        update_fcts
+        |> Enum.shuffle()
+        |> Enum.each(fn fct -> apply(fct, []) end)
+      end)
+
+      assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
+               enabled: false,
+               margin: 1.0
+             }
     end
   end
 end
