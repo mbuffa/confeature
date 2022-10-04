@@ -21,7 +21,7 @@ Add `confeature` to your dependencies:
 ```elixir
 def deps do
   [
-    {:confeature, "~> 0.1.0"}
+    {:confeature, "~> 0.1.1"}
   ]
 end
 ```

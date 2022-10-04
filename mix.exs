@@ -9,7 +9,11 @@ defmodule Confeature.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
+      # Hex
       package: package(),
+      description: "A generic and simple Elixir library to store your application-wide feature settings, on top of Ecto and your caching layer.",
+
+      # Docs
       name: "Confeature",
       source_url: "https://github.com/mbuffa/confeature",
       docs: [
@@ -50,7 +54,7 @@ defmodule Confeature.MixProject do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README", "LICENSE*"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE*"],
       maintainers: ["Maxime Buffa"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/mbuffa/confeature"}
