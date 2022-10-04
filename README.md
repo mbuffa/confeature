@@ -64,7 +64,7 @@ You can check the documentation for implementing a cache store that'll avoid que
 Then, declare a feature, like this:
 ```elixir
 defmodule MyApp.Features.Throttling do
-  defstruct [:identifier, :thresholds]
+  defstruct [:identifier, :threshold]
 
   @type t :: %__MODULE__{
     identifier: string(),
@@ -108,7 +108,7 @@ Confeature upserts one row per feature in your RDBMS, using a json field to stor
 You can also declare a `:enabled` attribute, so your feature can be enabled and disabled at runtime:
 ```elixir
 defmodule MyApp.Features.Throttling do
-  defstruct [:enabled, :identifier, :thresholds]
+  defstruct [:enabled, :identifier, :threshold]
 
   @type t :: %__MODULE__{
     enabled: boolean(),
