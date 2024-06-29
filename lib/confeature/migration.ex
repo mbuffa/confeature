@@ -33,7 +33,7 @@ defmodule Confeature.Migration do
 
     create table(table_name, primary_key: false) do
       add(:name, :string, primary_key: true, null: false)
-      add(:attrs, :json, default: "{}")
+      add(:attrs, :map, default: %{})
 
       timestamps()
     end
