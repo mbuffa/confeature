@@ -11,6 +11,7 @@ defmodule Confeature.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       # Hex
       package: package(),
+      aliases: aliases(),
       description: "Store your application-wide settings, on top of Ecto and your caching layer.",
 
       # Docs
@@ -59,6 +60,12 @@ defmodule Confeature.MixProject do
       maintainers: ["Maxime Buffa"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/mbuffa/confeature"}
+    ]
+  end
+
+  defp aliases do
+    [
+      test: ["ecto.create", "ecto.migrate", "test"]
     ]
   end
 end
