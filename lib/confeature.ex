@@ -51,106 +51,16 @@ defmodule Confeature do
       def __cache__, do: @cache
       def __table_name__, do: @table_name
 
-      alias Confeature.{
-        Schema,
-        Type
+      import Ecto.{
+        Changeset,
+        Query
       }
 
-      defmodule SQL do
-        import Ecto.{
-          Changeset,
-          Query
-        }
-
-        alias Confeature.Schema
-
-        @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()
-
-        defp __repo__ do
-          apply(@parent, :__repo__, [])
-        end
-
-        defp __table_name__ do
-          apply(@parent, :__table_name__, [])
-        end
-
-        defp maybe_override_query_source(query, nil), do: query
-        defp maybe_override_query_source(query, table_name) when is_binary(table_name) do
-            %Ecto.Query.FromExpr{
-              source: {"features", Schema}
-            } = from = query.from
-
-            %{query | from: %{from | source: {table_name, Schema}}}
-        end
-
-        defp maybe_override_changeset_source(changeset, nil), do: changeset
-        defp maybe_override_changeset_source(changeset, table_name) do
-          %{changeset | data: Ecto.put_meta(changeset.data, source: table_name) }
-        end
-
-        @spec get(name :: atom()) :: Schema.t() | nil
-        def get(name) when is_atom(name) do
-          query =
-            where(Schema, [f], f.name == ^name)
-            |> maybe_override_query_source(__table_name__())
-
-          apply(__repo__(), :one, [query])
-        end
-
-        @spec upsert(feature :: struct()) :: {:ok, struct()}
-        def upsert(%{__struct__: name} = feature) do
-          attrs =
-            feature
-            |> Map.from_struct()
-            # |> Map.drop([:name]) # FIXME: Reject reserved keyword
-
-          changeset =
-            case get(name) do
-              %Schema{} = record ->
-                Schema.changeset(record, %{attrs: attrs})
-
-              nil ->
-                Schema.changeset(%Schema{}, %{name: name, attrs: attrs})
-            end
-
-          changeset = maybe_override_changeset_source(changeset, __table_name__())
-
-          apply(__repo__(), :insert_or_update, [
-            changeset,
-            [on_conflict: :replace_all, conflict_target: :name]
-          ])
-        end
-
-        @spec delete(name :: atom()) :: {:ok, struct()} | {:error, changeset :: term()}
-        def delete(name) do
-          %Schema{} = feature = get(name)
-          apply(__repo__(), :delete, [feature])
-        end
-
-        @spec enable(name :: atom()) :: {:ok, struct()}
-        def enable(name) when is_atom(name) do
-          case get(name) do
-            %Schema{} = record ->
-              {:ok, feature} = Type.load(record)
-              upsert(%{feature | enabled: true})
-
-            nil ->
-              {:error, :not_found}
-          end
-        end
-
-        @spec disable(name :: atom()) :: {:ok, struct()}
-        def disable(name) when is_atom(name) do
-          case get(name) do
-            %Schema{} = record ->
-              {:ok, feature} = Type.load(record)
-              upsert(%{feature | enabled: false})
-
-            nil ->
-              {:error, :not_found}
-          end
-        end
-      end
+      alias Confeature.{
+        Schema,
+        Type,
+        SQL
+      }
 
       def get(name) when is_atom(name) do
         case apply(__cache__(), :get, [name]) do
@@ -160,8 +70,9 @@ defmodule Confeature do
             feature
 
           nil ->
-            case SQL.get(name) do
-              nil -> nil
+            case SQL.get(__MODULE__, name) do
+              nil ->
+                nil
 
               %Confeature.Schema{} = record ->
                 {:ok, _result} = apply(__cache__(), :set, [name, record])
@@ -172,14 +83,14 @@ defmodule Confeature do
       end
 
       def set(%{__struct__: name} = feature_struct) do
-        {:ok, result} = SQL.upsert(feature_struct)
+        {:ok, result} = SQL.upsert(__MODULE__, feature_struct)
         {:ok, _result} = apply(__cache__(), :set, [name, result])
 
         {:ok, _} = result |> Type.load()
       end
 
       def delete!(name) do
-        feature = SQL.get(name)
+        feature = SQL.get(__MODULE__, name)
 
         {:ok, _result} = apply(__repo__(), :delete, [feature])
         {:ok, _result} = apply(__cache__(), :delete, [name])

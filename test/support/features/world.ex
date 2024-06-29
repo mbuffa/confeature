@@ -1,7 +1,9 @@
 defmodule Test.Features.World do
+  @moduledoc false
+
   defstruct [:margin]
 
   @type t :: %__MODULE__{
-          margin: Float.t()
+          margin: float()
         }
 end

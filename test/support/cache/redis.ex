@@ -1,4 +1,6 @@
 defmodule Test.Cache.Redis do
+  @moduledoc false
+
   @behaviour Confeature.Cache
 
   # In seconds

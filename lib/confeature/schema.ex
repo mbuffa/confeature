@@ -9,13 +9,20 @@ defmodule Confeature.Schema do
 
   @primary_key false
 
+  @type t() :: %__MODULE__{
+          name: binary(),
+          attrs: map(),
+          inserted_at: NaiveDateTime.t(),
+          updated_at: NaiveDateTime.t()
+        }
+
   schema "features" do
     field(:name, CustomType, primary_key: true)
     field(:attrs, :map)
     timestamps()
   end
 
-  def changeset(feature = %__MODULE__{}, params \\ %{}) do
+  def changeset(%__MODULE__{} = feature, params \\ %{}) do
     new_attrs =
       params
       |> Map.fetch!(:attrs)

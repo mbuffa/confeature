@@ -1,4 +1,6 @@
 defmodule ConfeatureTest do
+  @moduledoc false
+
   use ExUnit.Case
   doctest Confeature
 
@@ -21,75 +23,81 @@ defmodule ConfeatureTest do
 
   describe "SQL functions" do
     test "upsert/1" do
-      {:ok, record = %Confeature.Schema{
-        attrs: %{"enabled" => false},
-        name: Test.Features.Hello,
-      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
+      {:ok,
+       record = %Confeature.Schema{
+         attrs: %{"enabled" => false},
+         name: Test.Features.Hello
+       }} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: false})
 
       {:ok, feature} = Confeature.Type.load(record)
 
-      {:ok, %Confeature.Schema{
-        attrs: %{"enabled" => true},
-        name: Test.Features.Hello,
-      }} = Test.Confeature.SQL.upsert(%{feature | enabled: true})
+      {:ok,
+       %Confeature.Schema{
+         attrs: %{"enabled" => true},
+         name: Test.Features.Hello
+       }} = Confeature.SQL.upsert(Test.Confeature, %{feature | enabled: true})
 
       Test.Confeature.delete!(Test.Features.Hello)
     end
 
     test "get/1" do
-      assert Test.Confeature.SQL.get(Test.Features.Hello) |> is_nil()
+      assert Confeature.SQL.get(Test.Confeature, Test.Features.Hello) |> is_nil()
 
-      {:ok, _} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
+      {:ok, _} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: false})
 
       %Confeature.Schema{
         attrs: %{"enabled" => false},
-        name: Test.Features.Hello,
-      } = Test.Confeature.SQL.get(Test.Features.Hello)
+        name: Test.Features.Hello
+      } = Confeature.SQL.get(Test.Confeature, Test.Features.Hello)
     end
 
     test "enable/1" do
-      {:ok, record = %Confeature.Schema{
-        attrs: %{"enabled" => false},
-        name: Test.Features.Hello,
-      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: false})
+      {:ok,
+       record = %Confeature.Schema{
+         attrs: %{"enabled" => false},
+         name: Test.Features.Hello
+       }} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: false})
 
-      Test.Confeature.SQL.enable(Test.Features.Hello)
+      Confeature.SQL.enable(Test.Confeature, Test.Features.Hello)
 
       %Confeature.Schema{
         attrs: %{"enabled" => true},
-        name: Test.Features.Hello,
-      } = Test.Confeature.SQL.get(Test.Features.Hello)
+        name: Test.Features.Hello
+      } = Confeature.SQL.get(Test.Confeature, Test.Features.Hello)
     end
 
     test "disable/1" do
-      {:ok, %Confeature.Schema{
-        attrs: %{"enabled" => true},
-        name: Test.Features.Hello,
-      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: true})
+      {:ok,
+       %Confeature.Schema{
+         attrs: %{"enabled" => true},
+         name: Test.Features.Hello
+       }} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: true})
 
-      Test.Confeature.SQL.disable(Test.Features.Hello)
+      Confeature.SQL.disable(Test.Confeature, Test.Features.Hello)
 
       %Confeature.Schema{
         attrs: %{"enabled" => false},
-        name: Test.Features.Hello,
-      } = Test.Confeature.SQL.get(Test.Features.Hello)
+        name: Test.Features.Hello
+      } = Confeature.SQL.get(Test.Confeature, Test.Features.Hello)
     end
 
     test "delete/1" do
-      {:ok, %Confeature.Schema{
-        attrs: %{"enabled" => true},
-        name: Test.Features.Hello,
-      }} = Test.Confeature.SQL.upsert(%Test.Features.Hello{enabled: true})
+      {:ok,
+       %Confeature.Schema{
+         attrs: %{"enabled" => true},
+         name: Test.Features.Hello
+       }} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: true})
 
-      Test.Confeature.SQL.delete(Test.Features.Hello)
+      Confeature.SQL.delete(Test.Confeature, Test.Features.Hello)
 
-      assert Test.Confeature.SQL.get(Test.Features.Hello) |> is_nil()
+      assert Confeature.SQL.get(Test.Confeature, Test.Features.Hello) |> is_nil()
     end
   end
 
   describe "behavior, without cache" do
     test "toggling a boolean" do
-      {:ok, %Test.Features.Hello{enabled: false}} = Test.Confeature.set(%Test.Features.Hello{enabled: false})
+      {:ok, %Test.Features.Hello{enabled: false}} =
+        Test.Confeature.set(%Test.Features.Hello{enabled: false})
 
       refute Test.Confeature.enabled?(Test.Features.Hello)
 
@@ -99,27 +107,31 @@ defmodule ConfeatureTest do
     end
 
     test "setting a value" do
-      {:ok, %Test.Features.World{margin: 0.97}} = Test.Confeature.set(%Test.Features.World{margin: 0.97})
+      {:ok, %Test.Features.World{margin: 0.97}} =
+        Test.Confeature.set(%Test.Features.World{margin: 0.97})
 
       assert Test.Confeature.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
     end
 
     test "setting multiple values" do
-      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} =
+        Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
 
       assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
                margin: 0.25
              }
 
-      {:ok, %Test.Features.Multi{enabled: false, margin: 0.25}} = Test.Confeature.disable(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: false, margin: 0.25}} =
+        Test.Confeature.disable(Test.Features.Multi)
 
       assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: false,
                margin: 0.25
              }
 
-      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.enable(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} =
+        Test.Confeature.enable(Test.Features.Multi)
 
       assert Test.Confeature.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
@@ -130,35 +142,45 @@ defmodule ConfeatureTest do
 
   describe "behavior, with redis-backed cache" do
     test "toggling a boolean" do
-      {:ok, %Test.Features.Hello{enabled: false}} = Test.Confeature.RedisBacked.set(%Test.Features.Hello{enabled: false})
+      {:ok, %Test.Features.Hello{enabled: false}} =
+        Test.Confeature.RedisBacked.set(%Test.Features.Hello{enabled: false})
 
       refute Test.Confeature.RedisBacked.enabled?(Test.Features.Hello)
-      {:ok, %Test.Features.Hello{enabled: true}} = Test.Confeature.RedisBacked.enable(Test.Features.Hello)
+
+      {:ok, %Test.Features.Hello{enabled: true}} =
+        Test.Confeature.RedisBacked.enable(Test.Features.Hello)
+
       assert Test.Confeature.RedisBacked.enabled?(Test.Features.Hello)
     end
 
     test "setting a value" do
-      {:ok, %Test.Features.World{margin: 0.97}} = Test.Confeature.RedisBacked.set(%Test.Features.World{margin: 0.97})
+      {:ok, %Test.Features.World{margin: 0.97}} =
+        Test.Confeature.RedisBacked.set(%Test.Features.World{margin: 0.97})
 
-      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{margin: 0.97}
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == %Test.Features.World{
+               margin: 0.97
+             }
     end
 
     test "setting multiple values" do
-      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.RedisBacked.set(%Test.Features.Multi{enabled: true, margin: 0.25})
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} =
+        Test.Confeature.RedisBacked.set(%Test.Features.Multi{enabled: true, margin: 0.25})
 
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
                margin: 0.25
              }
 
-      {:ok, %Test.Features.Multi{enabled: false, margin: 0.25}} = Test.Confeature.RedisBacked.disable(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: false, margin: 0.25}} =
+        Test.Confeature.RedisBacked.disable(Test.Features.Multi)
 
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: false,
                margin: 0.25
              }
 
-      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.RedisBacked.enable(Test.Features.Multi)
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} =
+        Test.Confeature.RedisBacked.enable(Test.Features.Multi)
 
       assert Test.Confeature.RedisBacked.get(Test.Features.Multi) == %Test.Features.Multi{
                enabled: true,
@@ -176,7 +198,7 @@ defmodule ConfeatureTest do
       Test.Confeature.RedisBacked.delete!(Test.Features.World)
       assert Test.Cache.Redis.get(Test.Features.World) |> is_nil()
       assert Test.Confeature.RedisBacked.get(Test.Features.World) |> is_nil()
-      assert Test.Confeature.RedisBacked.SQL.get(Test.Features.World) |> is_nil()
+      assert Confeature.SQL.get(Test.Confeature.RedisBacked, Test.Features.World) |> is_nil()
     end
   end
 
@@ -192,13 +214,14 @@ defmodule ConfeatureTest do
       assert Test.Confeature.get(Test.Features.Hello) |> is_nil()
 
       # And check that it's been created in the right table.
-      %Test.Features.Hello{enabled: true} =  Test.Confeature.WithTableName.get(Test.Features.Hello)
+      %Test.Features.Hello{enabled: true} = Test.Confeature.WithTableName.get(Test.Features.Hello)
     end
   end
 
   describe "behavior, partial updates" do
     test "with synchronous calls" do
-      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} =
+        Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
 
       Test.Confeature.set(%Test.Features.Multi{margin: 1.0})
       Test.Confeature.set(%Test.Features.Multi{enabled: false})
@@ -210,14 +233,15 @@ defmodule ConfeatureTest do
     end
 
     test "with concurrent and multiple calls" do
-      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} = Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
+      {:ok, %Test.Features.Multi{enabled: true, margin: 0.25}} =
+        Test.Confeature.set(%Test.Features.Multi{enabled: true, margin: 0.25})
 
       update_fcts = [
         fn -> Test.Confeature.set(%Test.Features.Multi{margin: 1.0}) end,
         fn -> Test.Confeature.set(%Test.Features.Multi{enabled: false}) end
       ]
 
-      (1..20)
+      1..20
       |> Enum.each(fn _iteration ->
         update_fcts
         |> Enum.shuffle()

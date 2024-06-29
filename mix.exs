@@ -11,7 +11,7 @@ defmodule Confeature.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       # Hex
       package: package(),
-      description: "A generic and simple Elixir library to store your application-wide feature settings, on top of Ecto and your caching layer.",
+      description: "Store your application-wide settings, on top of Ecto and your caching layer.",
 
       # Docs
       name: "Confeature",
@@ -40,12 +40,13 @@ defmodule Confeature.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, ">= 3.5.0"},
+      {:ecto, ">= 3.7.0"},
       {:ecto_sql, ">= 3.7.0"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.3", only: :test},
-      {:redix, "~> 1.1", only: :test},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
+      {:jason, "~> 1.4", only: [:dev, :test]},
+      {:redix, "~> 1.5", only: :test},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: :dev}
     ]
   end
 

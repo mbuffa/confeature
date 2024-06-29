@@ -1,4 +1,8 @@
 defmodule Confeature.Cache.Default do
+  @moduledoc """
+  Default (and void) caching strategy.
+  """
+
   @behaviour Confeature.Cache
 
   @impl true
