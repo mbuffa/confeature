@@ -53,7 +53,7 @@ defmodule ConfeatureTest do
 
     test "enable/1" do
       {:ok,
-       record = %Confeature.Schema{
+       %Confeature.Schema{
          attrs: %{"enabled" => false},
          name: Test.Features.Hello
        }} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: false})
