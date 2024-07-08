@@ -89,7 +89,7 @@ defmodule Confeature do
         {:ok, _} = result |> Type.load()
       end
 
-      def delete!(name) do
+      def delete(name) do
         feature = SQL.get(__MODULE__, name)
 
         {:ok, _result} = apply(__repo__(), :delete, [feature])
@@ -148,7 +148,7 @@ defmodule Confeature do
   You may want to call this function once you're completely done with a
   feature (eg. in a post-release Ecto migration).
   """
-  @callback delete!(name :: atom()) :: {:ok, any()}
+  @callback delete(name :: atom()) :: {:ok, any()}
 
   @doc """
   Returns true if your feature is enabled. This is a helper function, and

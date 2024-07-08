@@ -37,11 +37,11 @@ defmodule ConfeatureTest do
          name: Test.Features.Hello
        }} = Confeature.SQL.upsert(Test.Confeature, %{feature | enabled: true})
 
-      Test.Confeature.delete!(Test.Features.Hello)
+      assert {:ok, _} = Test.Confeature.delete(Test.Features.Hello)
     end
 
     test "get/1" do
-      assert Confeature.SQL.get(Test.Confeature, Test.Features.Hello) |> is_nil()
+      assert Confeature.SQL.get(Test.Confeature, Test.Features.Hello) == nil
 
       {:ok, _} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: false})
 
@@ -88,9 +88,8 @@ defmodule ConfeatureTest do
          name: Test.Features.Hello
        }} = Confeature.SQL.upsert(Test.Confeature, %Test.Features.Hello{enabled: true})
 
-      Confeature.SQL.delete(Test.Confeature, Test.Features.Hello)
-
-      assert Confeature.SQL.get(Test.Confeature, Test.Features.Hello) |> is_nil()
+      assert {:ok, _} = Confeature.SQL.delete(Test.Confeature, Test.Features.Hello)
+      assert Confeature.SQL.get(Test.Confeature, Test.Features.Hello) == nil
     end
   end
 
@@ -195,23 +194,23 @@ defmodule ConfeatureTest do
                margin: 0.97
              }
 
-      Test.Confeature.RedisBacked.delete!(Test.Features.World)
-      assert Test.Cache.Redis.get(Test.Features.World) |> is_nil()
-      assert Test.Confeature.RedisBacked.get(Test.Features.World) |> is_nil()
-      assert Confeature.SQL.get(Test.Confeature.RedisBacked, Test.Features.World) |> is_nil()
+      assert {:ok, _} = Test.Confeature.RedisBacked.delete(Test.Features.World)
+      assert Test.Cache.Redis.get(Test.Features.World) == nil
+      assert Test.Confeature.RedisBacked.get(Test.Features.World) == nil
+      assert Confeature.SQL.get(Test.Confeature.RedisBacked, Test.Features.World) == nil
     end
   end
 
   describe "behavior, with another table name" do
     test "simple assertions" do
       # Is our table empty?
-      assert Test.Confeature.WithTableName.get(:hello) |> is_nil()
+      assert Test.Confeature.WithTableName.get(:hello) == nil
 
       # Let's create something.
       Test.Confeature.WithTableName.set(%Test.Features.Hello{enabled: true})
 
       # Let's make sure it's not in the `features` table.
-      assert Test.Confeature.get(Test.Features.Hello) |> is_nil()
+      assert Test.Confeature.get(Test.Features.Hello) == nil
 
       # And check that it's been created in the right table.
       %Test.Features.Hello{enabled: true} = Test.Confeature.WithTableName.get(Test.Features.Hello)

@@ -7,9 +7,10 @@ Please note that this is a very early development, and that `Confeature` hasn't 
 Also, if you're looking for feature flags that you may apply on groups or actors, you should definitely use `:fun_with_flags` instead.
 
 The scope of `Confeature` is primarily set on:
-* Allowing you to change your application settings dynamically,
-* Setting any value at runtime,
-* Type-checking updates with structs and specs.
+
+- Allowing you to change your application settings dynamically,
+- Setting any value at runtime,
+- Type-checking updates with structs and specs.
 
 ## Documentation
 
@@ -18,6 +19,7 @@ Documentation is available on [https://hexdocs.pm/confeature](https://hexdocs.pm
 ## Installation
 
 Add `confeature` to your dependencies:
+
 ```elixir
 def deps do
   [
@@ -29,11 +31,13 @@ end
 ## Usage
 
 Start by creating Confeature table:
+
 ```sh
 mix ecto.gen.migration create_confeature_table
 ```
 
 And use Confeature provided migration:
+
 ```elixir
 defmodule YourEctoMigration do
   def up do
@@ -51,6 +55,7 @@ end
 ```
 
 Declare your Confeature interface
+
 ```elixir
 defmodule MyApp.Confeature do
   use Confeature,
@@ -59,9 +64,11 @@ defmodule MyApp.Confeature do
     cache: MyApp.Cache.Feature # Optional
 end
 ```
+
 You can check the documentation for implementing a cache store that'll avoid querying your database on each call.
 
 Then, declare a feature, like this:
+
 ```elixir
 defmodule MyApp.Features.Throttling do
   defstruct [:identifier, :threshold]
@@ -74,6 +81,7 @@ end
 ```
 
 Let's say that you'd want to initialize it in an Ecto migration:
+
 ```sh
 mix ecto.gen.migration init_throttling_settings
 ```
@@ -88,12 +96,13 @@ defmodule YourMigration do
   end
 
   def down do
-    MyApp.Confeature.delete!(MyApp.Features.Throttling)
+    MyApp.Confeature.delete(MyApp.Features.Throttling)
   end
 end
 ```
 
 You can then reference it in your code:
+
 ```elixir
 # Retrieve settings
 iex> MyApp.Confeature.get(MyApp.Features.Throttling)
@@ -106,6 +115,7 @@ iex> MyApp.Confeature.set(%MyApp.Features.Throttlin{identifier: "token", thresho
 Confeature upserts one row per feature in your RDBMS, using a json field to store attributes.
 
 You can also declare a `:enabled` attribute, so your feature can be enabled and disabled at runtime:
+
 ```elixir
 defmodule MyApp.Features.Throttling do
   defstruct [:enabled, :identifier, :threshold]
@@ -117,7 +127,7 @@ defmodule MyApp.Features.Throttling do
   }
 end
 
-MyApp.Confeature.enabled?(MyApp.Features.Throttling) 
-MyApp.Confeature.enable(MyApp.Features.Throttling) 
-MyApp.Confeature.disable(MyApp.Features.Throttling) 
+MyApp.Confeature.enabled?(MyApp.Features.Throttling)
+MyApp.Confeature.enable(MyApp.Features.Throttling)
+MyApp.Confeature.disable(MyApp.Features.Throttling)
 ```
